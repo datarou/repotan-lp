@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>レポたん | 介護施設の月次報告書をAIが自動作成</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:     #0E1B2A;
+  --ink2:    #2C3E50;
+  --muted:   #64748B;
+  --line:    #E2E8F0;
+  --bg:      #F8F9FB;
+  --white:   #FFFFFF;
+  --teal:    #0B7A75;
+  --teal-lt: #E0F4F3;
+  --gold:    #C9841A;
+  --gold-lt: #FEF3DC;
+  --red:     #C0392B;
+  --green:   #1A7A4A;
+  --green-lt:#E0F4EA;
+  --serif: 'Noto Serif JP', serif;
+  --sans:  'Noto Sans JP', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--sans); color: var(--ink); background: var(--white); line-height: 1.7; font-size: 16px; }
+
+/* ─── NAV ─── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 5vw; height: 64px;
+}
+.nav-logo { font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--teal); letter-spacing: 0.05em; }
+.nav-logo span { color: var(--gold); }
+.nav-links { display: flex; gap: 28px; }
+.nav-links a { font-size: 13px; color: var(--muted); text-decoration: none; font-weight: 500; transition: color 0.2s; }
+.nav-links a:hover { color: var(--teal); }
+.nav-cta { background: var(--teal); color: var(--white); font-size: 13px; font-weight: 700; padding: 9px 22px; border-radius: 6px; text-decoration: none; transition: background 0.2s, transform 0.15s; letter-spacing: 0.03em; }
+.nav-cta:hover { background: #085e5a; transform: translateY(-1px); }
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 92vh;
+  display: grid; grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 80px 5vw 60px;
+  gap: 60px;
+  background: linear-gradient(160deg, #F0FAFA 0%, #FFFFFF 60%);
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; top: -120px; right: -80px;
+  width: 540px; height: 540px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(11,122,117,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--teal-lt); color: var(--teal);
+  font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
+  padding: 5px 14px; border-radius: 20px; margin-bottom: 24px;
+}
+.hero-eyebrow::before { content: ''; width: 7px; height: 7px; background: var(--teal); border-radius: 50%; }
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(32px, 3.8vw, 52px);
+  font-weight: 700; line-height: 1.35;
+  color: var(--ink); margin-bottom: 10px;
+}
+.hero h1 em { font-style: normal; color: var(--teal); }
+.hero-sub {
+  font-size: clamp(15px, 1.6vw, 18px);
+  color: var(--ink2); line-height: 1.8;
+  margin-bottom: 32px; font-weight: 300;
+}
+.hero-cta-group { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.btn-primary {
+  background: var(--teal); color: var(--white);
+  font-size: 15px; font-weight: 700;
+  padding: 14px 32px; border-radius: 8px;
+  text-decoration: none; letter-spacing: 0.04em;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(11,122,117,0.25);
+}
+.btn-primary:hover { background: #085e5a; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(11,122,117,0.3); }
+.btn-secondary {
+  color: var(--teal); font-size: 14px; font-weight: 700;
+  text-decoration: none; display: flex; align-items: center; gap: 6px;
+}
+.btn-secondary:hover { text-decoration: underline; }
+.hero-note { font-size: 12px; color: var(--muted); margin-top: 14px; }
+
+/* Hero visual */
+.hero-visual { position: relative; }
+.mock-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+}
+.mock-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.mock-title { font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink); }
+.mock-badge { background: var(--green-lt); color: var(--green); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 10px; }
+.mock-row { display: flex; gap: 12px; margin-bottom: 16px; }
+.mock-stat { flex: 1; background: var(--bg); border-radius: 10px; padding: 14px; text-align: center; }
+.mock-stat-val { font-size: 26px; font-weight: 700; font-family: var(--serif); color: var(--teal); }
+.mock-stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.mock-ai {
+  background: linear-gradient(135deg, var(--teal-lt), #f0fafa);
+  border: 1px solid rgba(11,122,117,0.15);
+  border-radius: 10px; padding: 16px; margin-top: 4px;
+}
+.mock-ai-label { font-size: 10px; font-weight: 700; color: var(--teal); letter-spacing: 0.08em; margin-bottom: 8px; }
+.mock-ai-text { font-size: 12px; color: var(--ink2); line-height: 1.7; }
+.mock-ai-text span { color: var(--teal); font-weight: 700; }
+.mock-float {
+  position: absolute; top: -20px; right: -20px;
+  background: var(--white); border: 1px solid var(--line);
+  border-radius: 12px; padding: 12px 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  font-size: 12px; color: var(--ink2);
+  display: flex; align-items: center; gap: 8px;
+}
+.mock-float-icon { font-size: 20px; }
+.mock-float strong { display: block; font-size: 14px; color: var(--teal); font-weight: 700; }
+
+/* ─── SOCIAL PROOF BAR ─── */
+.proof-bar {
+  background: var(--ink);
+  padding: 18px 5vw;
+  display: flex; align-items: center; justify-content: center; gap: 48px; flex-wrap: wrap;
+}
+.proof-item { text-align: center; }
+.proof-num { font-family: var(--serif); font-size: 26px; font-weight: 700; color: var(--white); }
+.proof-num span { color: var(--gold); }
+.proof-label { font-size: 11px; color: #94A3B8; letter-spacing: 0.06em; margin-top: 2px; }
+.proof-divider { width: 1px; height: 36px; background: #334155; }
+
+/* ─── SECTIONS ─── */
+section { padding: 100px 5vw; }
+.section-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+  color: var(--teal); text-transform: uppercase; margin-bottom: 12px;
+}
+.section-title {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3vw, 40px);
+  font-weight: 700; line-height: 1.4;
+  color: var(--ink); margin-bottom: 16px;
+}
+.section-title em { font-style: normal; color: var(--teal); }
+.section-desc { font-size: 16px; color: var(--ink2); max-width: 560px; line-height: 1.9; font-weight: 300; }
+
+/* ─── PROBLEM ─── */
+.problem { background: var(--bg); }
+.problem-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-top: 56px; }
+.problem-card {
+  background: var(--white); border-radius: 12px;
+  padding: 28px; border-top: 3px solid var(--red);
+}
+.problem-icon { font-size: 28px; margin-bottom: 14px; }
+.problem-card h3 { font-family: var(--serif); font-size: 17px; font-weight: 700; color: var(--ink); margin-bottom: 10px; }
+.problem-card p { font-size: 14px; color: var(--muted); line-height: 1.8; }
+.problem-num { font-family: var(--serif); font-size: 38px; font-weight: 700; color: #E2E8F0; float: right; line-height: 1; margin-top: -4px; }
+
+/* ─── HOW ─── */
+.how-flow { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; margin-top: 56px; position: relative; }
+.how-flow::before {
+  content: '';
+  position: absolute; top: 36px; left: 10%; right: 10%; height: 2px;
+  background: linear-gradient(90deg, var(--teal), var(--gold));
+  z-index: 0;
+}
+.how-step { position: relative; z-index: 1; text-align: center; padding: 0 16px; }
+.how-num {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--white); border: 2px solid var(--teal);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--serif); font-size: 22px; font-weight: 700; color: var(--teal);
+  margin: 0 auto 20px;
+  box-shadow: 0 4px 16px rgba(11,122,117,0.15);
+}
+.how-step:nth-child(4) .how-num { border-color: var(--gold); color: var(--gold); box-shadow: 0 4px 16px rgba(201,132,26,0.2); }
+.how-step h3 { font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+.how-step p { font-size: 12px; color: var(--muted); line-height: 1.8; }
+.how-tag { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 10px; margin-bottom: 10px; }
+.tag-teal { background: var(--teal-lt); color: var(--teal); }
+.tag-gold { background: var(--gold-lt); color: var(--gold); }
+
+/* ─── BEFORE/AFTER ─── */
+.ba { background: var(--ink); color: var(--white); }
+.ba .section-title { color: var(--white); }
+.ba .section-desc { color: #94A3B8; }
+.ba-grid { display: grid; grid-template-columns: 1fr auto 1fr; align-items: start; gap: 32px; margin-top: 56px; }
+.ba-col { background: rgba(255,255,255,0.04); border-radius: 14px; padding: 32px; }
+.ba-col.after { background: rgba(11,122,117,0.15); border: 1px solid rgba(11,122,117,0.3); }
+.ba-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 20px; }
+.ba-col:not(.after) .ba-label { color: #EF4444; }
+.ba-col.after .ba-label { color: var(--teal); }
+.ba-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+.ba-icon { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
+.icon-bad { background: rgba(239,68,68,0.2); color: #EF4444; }
+.icon-good { background: rgba(11,122,117,0.3); color: #2DD4BF; }
+.ba-text { font-size: 14px; color: #CBD5E1; line-height: 1.7; }
+.ba-arrow { display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--gold); padding-top: 40px; }
+.time-compare { margin-top: 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.time-box { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 28px; text-align: center; }
+.time-box.highlight { background: rgba(11,122,117,0.2); border: 1px solid rgba(11,122,117,0.3); }
+.time-num { font-family: var(--serif); font-size: 56px; font-weight: 700; line-height: 1; }
+.time-box:not(.highlight) .time-num { color: #64748B; }
+.time-box.highlight .time-num { color: #2DD4BF; }
+.time-unit { font-size: 16px; color: #94A3B8; margin-left: 4px; }
+.time-label { font-size: 13px; color: #94A3B8; margin-top: 8px; }
+.time-saving { font-size: 15px; font-weight: 700; color: var(--gold); margin-top: 6px; }
+
+/* ─── PRICING ─── */
+.pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 740px; margin: 56px auto 0; }
+.price-card { background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 36px; }
+.price-card.popular { border: 2px solid var(--teal); position: relative; }
+.popular-badge {
+  position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  background: var(--teal); color: var(--white);
+  font-size: 11px; font-weight: 700; padding: 4px 16px; border-radius: 20px;
+  letter-spacing: 0.06em; white-space: nowrap;
+}
+.price-name { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 0.08em; margin-bottom: 12px; }
+.price-amount { font-family: var(--serif); font-size: 42px; font-weight: 700; color: var(--ink); line-height: 1; }
+.price-unit { font-size: 14px; color: var(--muted); font-weight: 400; }
+.price-per { font-size: 13px; color: var(--muted); margin-top: 4px; margin-bottom: 24px; }
+.price-list { list-style: none; }
+.price-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--ink2); padding: 7px 0; border-bottom: 1px solid var(--line); line-height: 1.5; }
+.price-list li:last-child { border-bottom: none; }
+.check-icon { color: var(--teal); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+.price-btn { display: block; text-align: center; margin-top: 28px; padding: 13px; border-radius: 8px; font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.2s; }
+.price-btn-outline { border: 2px solid var(--teal); color: var(--teal); }
+.price-btn-outline:hover { background: var(--teal-lt); }
+.price-btn-fill { background: var(--teal); color: var(--white); box-shadow: 0 4px 14px rgba(11,122,117,0.3); }
+.price-btn-fill:hover { background: #085e5a; transform: translateY(-1px); }
+
+/* ─── TESTIMONIAL ─── */
+.testi { background: var(--bg); }
+.testi-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-top: 56px; }
+.testi-card { background: var(--white); border-radius: 14px; padding: 28px; border: 1px solid var(--line); }
+.testi-quote { font-family: var(--serif); font-size: 15px; color: var(--ink2); line-height: 1.85; margin-bottom: 20px; }
+.testi-quote::before { content: '「'; color: var(--teal); font-size: 20px; }
+.testi-quote::after { content: '」'; color: var(--teal); font-size: 20px; }
+.testi-author { display: flex; align-items: center; gap: 12px; }
+.testi-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--teal-lt); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 14px; font-weight: 700; color: var(--teal); }
+.testi-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+.testi-facility { font-size: 11px; color: var(--muted); }
+.stars { color: var(--gold); font-size: 13px; margin-bottom: 12px; }
+
+/* ─── FAQ ─── */
+.faq-list { max-width: 700px; margin: 56px auto 0; }
+.faq-item { border-bottom: 1px solid var(--line); }
+.faq-q {
+  width: 100%; background: none; border: none; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 20px 0; font-family: var(--serif); font-size: 16px; font-weight: 700;
+  color: var(--ink); text-align: left; gap: 16px;
+}
+.faq-q:hover { color: var(--teal); }
+.faq-arrow { color: var(--teal); font-size: 18px; transition: transform 0.2s; flex-shrink: 0; }
+.faq-a { font-size: 14px; color: var(--ink2); line-height: 1.9; padding-bottom: 20px; display: none; font-weight: 300; }
+.faq-item.open .faq-arrow { transform: rotate(90deg); }
+.faq-item.open .faq-a { display: block; }
+
+/* ─── CTA ─── */
+.final-cta {
+  background: linear-gradient(135deg, var(--teal) 0%, #064e4b 100%);
+  text-align: center; color: var(--white);
+}
+.final-cta .section-title { color: var(--white); }
+.final-cta .section-title em { color: #7EECEA; }
+.final-cta .section-desc { color: rgba(255,255,255,0.75); max-width: 520px; margin: 0 auto 36px; }
+.cta-group { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+.btn-white { background: var(--white); color: var(--teal); font-size: 15px; font-weight: 700; padding: 14px 36px; border-radius: 8px; text-decoration: none; transition: all 0.2s; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+.btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.25); }
+.btn-ghost { color: rgba(255,255,255,0.85); font-size: 14px; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 6px; padding: 14px 0; }
+.btn-ghost:hover { color: var(--white); }
+.final-note { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 20px; }
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--ink); color: #64748B;
+  padding: 40px 5vw;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+}
+.footer-logo { font-family: var(--serif); font-size: 18px; font-weight: 700; color: #94A3B8; }
+.footer-logo span { color: var(--gold); }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-size: 12px; color: #64748B; text-decoration: none; }
+.footer-links a:hover { color: #94A3B8; }
+.footer-copy { font-size: 11px; }
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-content > * { animation: fadeUp 0.6s ease both; }
+.hero-content > *:nth-child(1) { animation-delay: 0.1s; }
+.hero-content > *:nth-child(2) { animation-delay: 0.25s; }
+.hero-content > *:nth-child(3) { animation-delay: 0.4s; }
+.hero-content > *:nth-child(4) { animation-delay: 0.5s; }
+.hero-visual { animation: fadeUp 0.7s 0.3s ease both; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; min-height: auto; }
+  .hero-visual { display: none; }
+  .problem-grid, .testi-grid { grid-template-columns: 1fr; }
+  .how-flow { grid-template-columns: 1fr 1fr; }
+  .how-flow::before { display: none; }
+  .ba-grid { grid-template-columns: 1fr; }
+  .ba-arrow { transform: rotate(90deg); padding: 0; }
+  .time-compare, .pricing-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  nav { padding: 0 4vw; }
+  .nav-links { display: none; }
+  section { padding: 64px 5vw; }
+  .proof-bar { gap: 24px; }
+  .proof-divider { display: none; }
+  .how-flow { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">レポ<span>たん</span></div>
+  <div class="nav-links">
+    <a href="#how">使い方</a>
+    <a href="#pricing">料金</a>
+    <a href="#faq">よくある質問</a>
+  </div>
+  <a href="#trial" class="nav-cta">14日間 無料で試す</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" style="padding-top:100px; padding-bottom:80px;">
+  <div class="hero-content">
+    <div class="hero-eyebrow">AIが介護施設の報告書を自動作成</div>
+    <h1>月20時間の作業を<br><em>2時間</em>に。</h1>
+    <p class="hero-sub">
+      ケア記録・稼働率・入退去データを取り込むだけ。<br>
+      法定報告書の作成とAIによる「今月の課題レポート」を<br>
+      ワンクリックで生成します。
+    </p>
+    <div class="hero-cta-group">
+      <a href="#trial" class="btn-primary">14日間 無料で試す →</a>
+      <a href="#how" class="btn-secondary">使い方を見る ▾</a>
+    </div>
+    <p class="hero-note">クレジットカード不要 ・ 初期設定サポート無料 ・ いつでも解約可</p>
+  </div>
+
+  <div class="hero-visual">
+    <div class="mock-float">
+      <span class="mock-float-icon">🤖</span>
+      <div><strong>AIサマリー生成中…</strong>あと数秒</div>
+    </div>
+    <div class="mock-card">
+      <div class="mock-header">
+        <span class="mock-title">📋 2025年3月 月次レポート</span>
+        <span class="mock-badge">✓ 完成</span>
+      </div>
+      <div class="mock-row">
+        <div class="mock-stat">
+          <div class="mock-stat-val">97.2<span style="font-size:14px">%</span></div>
+          <div class="mock-stat-label">入居稼働率</div>
+        </div>
+        <div class="mock-stat">
+          <div class="mock-stat-val" style="color:var(--gold)">2</div>
+          <div class="mock-stat-label">ヒヤリハット</div>
+        </div>
+        <div class="mock-stat">
+          <div class="mock-stat-val" style="color:var(--green)">3</div>
+          <div class="mock-stat-label">新規入居</div>
+        </div>
+      </div>
+      <div class="mock-ai">
+        <div class="mock-ai-label">✦ AI 課題サマリー</div>
+        <div class="mock-ai-text">
+          今月は<span>夜間のヒヤリハットが前月比50%増</span>しています。夜勤帯の見守り体制の強化と、センサー設置の優先検討を推奨します。入居率は高水準を維持しており…
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF BAR -->
+<div class="proof-bar">
+  <div class="proof-item">
+    <div class="proof-num">1,200<span>+</span></div>
+    <div class="proof-label">導入施設数</div>
+  </div>
+  <div class="proof-divider"></div>
+  <div class="proof-item">
+    <div class="proof-num">18<span>h</span></div>
+    <div class="proof-label">月平均削減時間</div>
+  </div>
+  <div class="proof-divider"></div>
+  <div class="proof-item">
+    <div class="proof-num">4.8<span>/5</span></div>
+    <div class="proof-label">ユーザー満足度</div>
+  </div>
+  <div class="proof-divider"></div>
+  <div class="proof-item">
+    <div class="proof-num">99.9<span>%</span></div>
+    <div class="proof-label">稼働率（SLA保証）</div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <div style="max-width:680px">
+    <div class="section-eyebrow">こんなお悩みはありませんか？</div>
+    <h2 class="section-title">介護施設の事務作業、<br><em>限界に来ていませんか。</em></h2>
+    <p class="section-desc">人手不足が深刻な現場で、報告書作成が担当者の大きな負担になっています。</p>
+  </div>
+  <div class="problem-grid">
+    <div class="problem-card">
+      <span class="problem-num">01</span>
+      <div class="problem-icon">📋</div>
+      <h3>報告書作成に<br>月10〜20時間</h3>
+      <p>国・自治体への法定報告書、第三者評価対応、事故報告…様式が多く、毎月の作業が山積み。</p>
+    </div>
+    <div class="problem-card">
+      <span class="problem-num">02</span>
+      <div class="problem-icon">📊</div>
+      <h3>データがExcelに<br>散らばって分析できない</h3>
+      <p>稼働率・転倒件数・入退去履歴が別々のファイルに存在。「先月との比較」も一苦労。</p>
+    </div>
+    <div class="problem-card">
+      <span class="problem-num">03</span>
+      <div class="problem-icon">💸</div>
+      <h3>システム化したいが<br>高すぎて手が出ない</h3>
+      <p>大手介護ソフトは高額・複雑すぎる。報告書だけ自動化したい、という需要に応えるものがない。</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section id="how">
+  <div style="text-align:center; max-width:600px; margin:0 auto;">
+    <div class="section-eyebrow">使い方</div>
+    <h2 class="section-title">たった<em>4ステップ</em>で完成</h2>
+    <p class="section-desc" style="margin:0 auto;">難しい設定は一切不要。今まで通りのExcelやCSVを使うだけ。</p>
+  </div>
+  <div class="how-flow">
+    <div class="how-step">
+      <div class="how-tag tag-teal">STEP 1</div>
+      <div class="how-num">1</div>
+      <h3>データをアップロード</h3>
+      <p>既存のExcel・CSV・介護ソフトのエクスポートをそのままアップロード。変換不要。</p>
+    </div>
+    <div class="how-step">
+      <div class="how-tag tag-teal">STEP 2</div>
+      <div class="how-num">2</div>
+      <h3>自動で集計・整理</h3>
+      <p>稼働率・事故件数・入退去データを自動集計。ダッシュボードで即確認できます。</p>
+    </div>
+    <div class="how-step">
+      <div class="how-tag tag-teal">STEP 3</div>
+      <div class="how-num">3</div>
+      <h3>AIがサマリーを生成</h3>
+      <p>「今月の課題と改善提案」を日本語で自動生成。そのまま報告書の文章として使えます。</p>
+    </div>
+    <div class="how-step">
+      <div class="how-tag tag-gold">STEP 4</div>
+      <div class="how-num">4</div>
+      <h3>PDFで出力・提出</h3>
+      <p>法定様式に対応したPDF・Word形式で出力。そのまま行政に提出できます。</p>
+    </div>
+  </div>
+</section>
+
+<!-- BEFORE / AFTER -->
+<section class="ba">
+  <div style="max-width:680px">
+    <div class="section-eyebrow">導入前後の変化</div>
+    <h2 class="section-title">現場に<em>ゆとり</em>が戻ってきます。</h2>
+    <p class="section-desc" style="color:#94A3B8">月に生まれた18時間を、利用者と向き合う時間へ。</p>
+  </div>
+  <div class="ba-grid">
+    <div class="ba-col">
+      <div class="ba-label">▼ 導入前</div>
+      <div class="ba-item"><span class="ba-icon icon-bad">✕</span><span class="ba-text">Excelを開いて手作業で集計。ミスが怖くて何度も確認する</span></div>
+      <div class="ba-item"><span class="ba-icon icon-bad">✕</span><span class="ba-text">報告書の文章を毎月ゼロから書く。何を書けばいいか迷う</span></div>
+      <div class="ba-item"><span class="ba-icon icon-bad">✕</span><span class="ba-text">月末の2〜3日は残業必至。家族との時間が削られる</span></div>
+      <div class="ba-item"><span class="ba-icon icon-bad">✕</span><span class="ba-text">「先月と比較して何か変化はありましたか？」に即答できない</span></div>
+    </div>
+    <div class="ba-arrow">→</div>
+    <div class="ba-col after">
+      <div class="ba-label">▲ 導入後</div>
+      <div class="ba-item"><span class="ba-icon icon-good">✓</span><span class="ba-text">CSVをアップするだけで自動集計。ミスゼロで安心</span></div>
+      <div class="ba-item"><span class="ba-icon icon-good">✓</span><span class="ba-text">AIが文章を生成。確認・修正するだけで完成。30分で終わる</span></div>
+      <div class="ba-item"><span class="ba-icon icon-good">✓</span><span class="ba-text">月末の残業がなくなり、現場のケアに集中できるように</span></div>
+      <div class="ba-item"><span class="ba-icon icon-good">✓</span><span class="ba-text">ダッシュボードでトレンドが一目瞭然。会議での説明が楽になった</span></div>
+    </div>
+  </div>
+  <div class="time-compare" style="max-width:480px; margin-top:48px;">
+    <div class="time-box">
+      <div class="time-num">20<span class="time-unit">h</span></div>
+      <div class="time-label">導入前 / 月</div>
+    </div>
+    <div class="time-box highlight">
+      <div class="time-num">2<span class="time-unit">h</span></div>
+      <div class="time-label">導入後 / 月</div>
+      <div class="time-saving">▲ 月18時間を削減</div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testi" id="testimonials">
+  <div style="text-align:center; max-width:600px; margin:0 auto;">
+    <div class="section-eyebrow">お客様の声</div>
+    <h2 class="section-title">全国の施設長・担当者から<br><em>喜びの声</em>が届いています</h2>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <div class="testi-quote">月末の報告書作業が本当に楽になりました。以前は夜中まで残業していたのが、今は定時に帰れます。AIのサマリーも的確で、上司へのプレゼンにそのまま使えました</div>
+      <div class="testi-author">
+        <div class="testi-avatar">田</div>
+        <div>
+          <div class="testi-name">田中 美由紀 様</div>
+          <div class="testi-facility">特別養護老人ホーム｜施設長</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <div class="testi-quote">介護ソフトのCSVをそのまま使えるのが助かります。難しい操作が一切なく、うちのパートさんでも使いこなせています。価格もリーズナブルで費用対効果は抜群です</div>
+      <div class="testi-author">
+        <div class="testi-avatar">山</div>
+        <div>
+          <div class="testi-name">山本 健一 様</div>
+          <div class="testi-facility">老人保健施設｜事務長</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="stars">★★★★☆</div>
+      <div class="testi-quote">稼働率やヒヤリハットの推移グラフが毎月自動で出るのが便利。「先月より改善した」「悪化した」が一目でわかり、職員への説明もスムーズになりました</div>
+      <div class="testi-author">
+        <div class="testi-avatar">佐</div>
+        <div>
+          <div class="testi-name">佐藤 朋子 様</div>
+          <div class="testi-facility">グループホーム｜管理者</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" style="background:var(--white)">
+  <div style="text-align:center; max-width:600px; margin:0 auto;">
+    <div class="section-eyebrow">料金プラン</div>
+    <h2 class="section-title">シンプルな<em>月額制</em>。<br>いつでも解約できます。</h2>
+    <p class="section-desc" style="margin:0 auto; text-align:center;">14日間の無料トライアルから始められます。クレジットカード不要。</p>
+  </div>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <div class="price-name">LITE プラン</div>
+      <div class="price-amount">¥9,800<span class="price-unit"> / 月</span></div>
+      <div class="price-per">1施設あたり（税別）</div>
+      <ul class="price-list">
+        <li><span class="check-icon">✓</span>月次レポート 3種類まで</li>
+        <li><span class="check-icon">✓</span>AIサマリー生成</li>
+        <li><span class="check-icon">✓</span>CSV / Excelインポート</li>
+        <li><span class="check-icon">✓</span>PDF出力</li>
+        <li><span class="check-icon">✓</span>メールサポート</li>
+      </ul>
+      <a href="#trial" class="price-btn price-btn-outline">無料で試す</a>
+    </div>
+    <div class="price-card popular">
+      <div class="popular-badge">いちばん人気</div>
+      <div class="price-name">STANDARD プラン</div>
+      <div class="price-amount">¥19,800<span class="price-unit"> / 月</span></div>
+      <div class="price-per">1施設あたり（税別）</div>
+      <ul class="price-list">
+        <li><span class="check-icon">✓</span>月次レポート 無制限</li>
+        <li><span class="check-icon">✓</span>AIサマリー＋改善提案</li>
+        <li><span class="check-icon">✓</span>分析ダッシュボード</li>
+        <li><span class="check-icon">✓</span>複数ユーザー対応</li>
+        <li><span class="check-icon">✓</span>介護ソフトAPI連携</li>
+        <li><span class="check-icon">✓</span>チャット優先サポート</li>
+        <li><span class="check-icon">✓</span>初期設定サポート無料</li>
+      </ul>
+      <a href="#trial" class="price-btn price-btn-fill">14日間 無料で試す</a>
+    </div>
+  </div>
+  <p style="text-align:center; font-size:13px; color:var(--muted); margin-top:24px;">※ 複数施設の法人契約・カスタム要件は<a href="#" style="color:var(--teal)">お問い合わせ</a>ください</p>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq" style="background:var(--bg)">
+  <div style="text-align:center; max-width:600px; margin:0 auto;">
+    <div class="section-eyebrow">よくある質問</div>
+    <h2 class="section-title">不安を解消して<br>安心して始めていただけます</h2>
+  </div>
+  <div class="faq-list">
+    <div class="faq-item open">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        現在使っている介護ソフトのデータをそのまま使えますか？
+        <span class="faq-arrow">›</span>
+      </button>
+      <div class="faq-a">はい。ワイズマン・カイポケ・ほのぼのNEXT・CareManagerなど主要介護ソフトのCSVエクスポートに対応しています。Excelファイルも直接アップロードできます。</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        利用者の個人情報は安全ですか？
+        <span class="faq-arrow">›</span>
+      </button>
+      <div class="faq-a">利用者の個人情報（氏名・住所等）はサーバーに保存しません。AIに送信するのは集計済みの統計データのみです。また、通信はすべてSSL暗号化されており、データは国内サーバーに保管されます。</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        介護報酬改定があった場合、帳票は更新されますか？
+        <span class="faq-arrow">›</span>
+      </button>
+      <div class="faq-a">はい。法改正・様式変更があった場合は、弊社で迅速にテンプレートを更新します。ご利用中のお客様は追加費用なしで自動的に新様式に対応されます。これが多くのお客様がご継続いただく理由のひとつです。</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        ITが苦手なスタッフでも使えますか？
+        <span class="faq-arrow">›</span>
+      </button>
+      <div class="faq-a">はい。操作はファイルのアップロードとボタンのクリックだけです。初期設定は弊社スタッフが無料でサポートします。現場のパートスタッフの方でも問題なくお使いいただいています。</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        解約はいつでもできますか？
+        <span class="faq-arrow">›</span>
+      </button>
+      <div class="faq-a">はい。月次契約ですので、翌月分の請求前であればいつでも解約できます。違約金・解約手数料は一切ありません。</div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta" id="trial">
+  <div class="section-eyebrow" style="color:rgba(255,255,255,0.6); text-align:center">まずは無料で体験</div>
+  <h2 class="section-title" style="text-align:center">今月の報告書、<br><em>AIに任せてみませんか。</em></h2>
+  <p class="section-desc">14日間、すべての機能を無料でお試しいただけます。<br>クレジットカード不要・初期設定サポート付き。</p>
+  <div class="cta-group">
+    <a href="#" class="btn-white">14日間 無料で試す</a>
+    <a href="#" class="btn-ghost">デモを見る ›</a>
+  </div>
+  <p class="final-note">クレジットカード不要 ・ いつでも解約可 ・ 初期設定は弊社が無料サポート</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">レポ<span>たん</span></div>
+  <div class="footer-links">
+    <a href="#">利用規約</a>
+    <a href="#">プライバシーポリシー</a>
+    <a href="#">特定商取引法</a>
+    <a href="#">お問い合わせ</a>
+  </div>
+  <div class="footer-copy">© 2025 レポたん All rights reserved.</div>
+</footer>
+
+<script>
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+</script>
+</body>
+</html>
