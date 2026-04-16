@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>プライバシーポリシー | レポたん</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root { --teal:#0B7A75; --gold:#C9841A; --ink:#0E1B2A; --muted:#64748B; --line:#E2E8F0; --bg:#F8F9FB; }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans JP',sans-serif;color:var(--ink);background:var(--bg);line-height:1.8;}
+nav{background:#fff;border-bottom:1px solid var(--line);padding:0 5vw;height:64px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-family:'Noto Serif JP',serif;font-size:20px;font-weight:700;color:var(--teal);text-decoration:none;}
+.nav-logo span{color:var(--gold);}
+.back{font-size:13px;color:var(--muted);text-decoration:none;}
+.back:hover{color:var(--teal);}
+.container{max-width:800px;margin:0 auto;padding:60px 5vw 100px;}
+h1{font-family:'Noto Serif JP',serif;font-size:28px;font-weight:700;color:var(--ink);margin-bottom:8px;}
+.date{font-size:13px;color:var(--muted);margin-bottom:48px;}
+h2{font-family:'Noto Serif JP',serif;font-size:18px;font-weight:700;color:var(--ink);margin:40px 0 12px;padding-left:12px;border-left:3px solid var(--teal);}
+p{font-size:15px;color:#334155;margin-bottom:14px;font-weight:300;}
+ol,ul{padding-left:1.5em;margin-bottom:14px;}
+li{font-size:15px;color:#334155;margin-bottom:6px;font-weight:300;}
+.highlight{background:#E0F4F3;border-radius:8px;padding:16px 20px;margin:20px 0;}
+footer{background:var(--ink);color:#64748B;padding:24px 5vw;text-align:center;font-size:12px;}
+footer a{color:#64748B;text-decoration:none;margin:0 12px;}
+footer a:hover{color:#94A3B8;}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">レポ<span>たん</span></a>
+  <a href="/" class="back">← トップに戻る</a>
+</nav>
+
+<div class="container">
+  <h1>プライバシーポリシー</h1>
+  <p class="date">制定日：2026年4月1日</p>
+
+  <p>レポたん（以下「当サービス」）は、ユーザーの個人情報の取り扱いについて、以下のとおりプライバシーポリシーを定めます。</p>
+
+  <div class="highlight">
+    <p style="font-weight:500;color:#0B7A75;margin-bottom:6px;">📋 介護施設の利用者情報について</p>
+    <p style="margin:0;">当サービスは、介護施設の利用者（入居者）の氏名・住所・介護保険番号などの個人情報を収集・保存しません。アップロードされたCSVから統計値のみを抽出し、個人を特定できる情報は即座に破棄します。</p>
+  </div>
+
+  <h2>第1条（収集する情報）</h2>
+  <p>当サービスが収集する情報は以下のとおりです。</p>
+  <ol>
+    <li><strong>アカウント情報：</strong>施設名、担当者氏名、メールアドレス、パスワード（暗号化）</li>
+    <li><strong>利用データ：</strong>稼働率・入居者数・事故件数などの施設統計データ（個人情報を含まない集計値のみ）</li>
+    <li><strong>決済情報：</strong>クレジットカード情報（Lemon Squeezyが管理。当サービスのサーバーには保存しません）</li>
+    <li><strong>アクセスログ：</strong>IPアドレス、ブラウザ種別、アクセス日時</li>
+  </ol>
+
+  <h2>第2条（情報の利用目的）</h2>
+  <p>収集した情報は以下の目的に使用します。</p>
+  <ol>
+    <li>サービスの提供・運営</li>
+    <li>ユーザーへのサポート対応</li>
+    <li>サービス改善・新機能開発</li>
+    <li>重要なお知らせ・規約変更のご連絡</li>
+    <li>料金の請求</li>
+  </ol>
+
+  <h2>第3条（第三者提供）</h2>
+  <p>当サービスは、以下の場合を除き、ユーザーの個人情報を第三者に提供しません。</p>
+  <ol>
+    <li>ユーザーの同意がある場合</li>
+    <li>法令に基づく場合</li>
+    <li>人の生命・身体・財産の保護のために必要な場合</li>
+  </ol>
+  <p>なお、サービス運営のため以下の事業者にデータを委託する場合があります。</p>
+  <ul>
+    <li>Anthropic（AIレポート生成）- 統計データのみ送信</li>
+    <li>Supabase（データベースホスティング）</li>
+    <li>Lemon Squeezy（決済処理）</li>
+    <li>Vercel / Railway（サーバーホスティング）</li>
+  </ul>
+
+  <h2>第4条（データの保管）</h2>
+  <p>ユーザーデータは国内および海外のクラウドサーバーに保管されます。通信はすべてSSL/TLSにより暗号化されます。</p>
+
+  <h2>第5条（Cookie）</h2>
+  <p>当サービスは、ログイン状態の維持のためCookieを使用します。ブラウザの設定によりCookieを無効にすることができますが、一部のサービス機能が利用できなくなる場合があります。</p>
+
+  <h2>第6条（個人情報の開示・訂正・削除）</h2>
+  <p>ユーザーは、自己の個人情報の開示・訂正・削除を求めることができます。お問い合わせフォームよりご連絡ください。合理的な範囲で速やかに対応します。</p>
+
+  <h2>第7条（アカウント削除時のデータ）</h2>
+  <p>アカウントを削除した場合、登録情報および施設データは削除されます。ただし、法令により保存が義務付けられているデータについては、必要な期間保存します。</p>
+
+  <h2>第8条（プライバシーポリシーの変更）</h2>
+  <p>本ポリシーの内容を変更する場合、変更後のポリシーを当サービス上に掲示します。重要な変更については登録メールアドレスにてお知らせします。</p>
+
+  <h2>第9条（お問い合わせ）</h2>
+  <p>個人情報の取り扱いに関するお問い合わせは、以下よりご連絡ください。</p>
+  <p>メール：<a href="mailto:info@repotan.jp" style="color:var(--teal);">info@repotan.jp</a></p>
+
+  <p style="margin-top:48px;font-size:13px;color:var(--muted);">以上</p>
+</div>
+
+<footer>
+  <a href="/">トップ</a>
+  <a href="/terms.html">利用規約</a>
+  <a href="/privacy.html">プライバシーポリシー</a>
+  <a href="/tokusho.html">特定商取引法</a>
+  <p style="margin-top:12px;">© 2026 レポたん All rights reserved.</p>
+</footer>
+</body>
+</html>
