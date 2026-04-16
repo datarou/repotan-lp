@@ -37,11 +37,13 @@ nav {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 5vw; height: 64px;
 }
-.nav-logo { font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--teal); letter-spacing: 0.05em; }
+.nav-logo { font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--teal); letter-spacing: 0.05em; text-decoration: none; }
 .nav-logo span { color: var(--gold); }
 .nav-links { display: flex; gap: 28px; }
 .nav-links a { font-size: 13px; color: var(--muted); text-decoration: none; font-weight: 500; transition: color 0.2s; }
 .nav-links a:hover { color: var(--teal); }
+.nav-login { font-size: 13px; color: var(--teal); font-weight: 700; text-decoration: none; border: 1.5px solid var(--teal); padding: 7px 16px; border-radius: 6px; transition: all 0.2s; }
+.nav-login:hover { background: var(--teal-lt); }
 .nav-cta { background: var(--teal); color: var(--white); font-size: 13px; font-weight: 700; padding: 9px 22px; border-radius: 6px; text-decoration: none; transition: background 0.2s, transform 0.15s; letter-spacing: 0.03em; }
 .nav-cta:hover { background: #085e5a; transform: translateY(-1px); }
 
@@ -327,12 +329,24 @@ footer {
   .time-compare, .pricing-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
-  nav { padding: 0 4vw; }
+  nav { padding: 0 4vw; gap: 8px; }
   .nav-links { display: none; }
-  section { padding: 64px 5vw; }
-  .proof-bar { gap: 24px; }
+  .nav-cta { font-size: 12px; padding: 8px 14px; }
+  section { padding: 56px 5vw; }
+  .proof-bar { gap: 16px; padding: 16px 4vw; }
   .proof-divider { display: none; }
+  .proof-num { font-size: 20px; }
   .how-flow { grid-template-columns: 1fr; }
+  .hero-cta-group { flex-direction: column; align-items: stretch; }
+  .btn-primary { text-align: center; }
+  .ba-col { padding: 20px; }
+  .time-compare { grid-template-columns: 1fr 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .price-card { padding: 24px; }
+  .faq-q { font-size: 14px; }
+  footer { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .footer-links { flex-wrap: wrap; gap: 12px; }
+  .cta-group { flex-direction: column; align-items: center; }
 }
 </style>
 </head>
@@ -340,11 +354,12 @@ footer {
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo">レポ<span>たん</span></div>
+  <a href="/" class="nav-logo">レポ<span>たん</span></a>
   <div class="nav-links">
     <a href="#how">使い方</a>
     <a href="#pricing">料金</a>
     <a href="#faq">よくある質問</a>
+    <a href="https://app.repotan.jp/login" class="nav-login">ログイン</a>
   </div>
   <a href="https://tally.so/r/Pd0y7P" class="nav-cta">14日間 無料で試す</a>
 </nav>
@@ -355,15 +370,16 @@ footer {
     <div class="hero-eyebrow">AIが介護施設の報告書を自動作成</div>
     <h1>月20時間の作業を<br><em>2時間</em>に。</h1>
     <p class="hero-sub">
-      ケア記録・稼働率・入退去データを取り込むだけ。<br>
-      法定報告書の作成とAIによる「今月の課題レポート」を<br>
-      ワンクリックで生成します。
+      介護施設の月次報告書、毎月何時間かけていますか？<br>
+      CSVをアップするだけで、AIが集計・文章生成・PDF出力まで<br>
+      すべて自動で完了します。
     </p>
     <div class="hero-cta-group">
       <a href="https://tally.so/r/Pd0y7P" class="btn-primary">14日間 無料で試す →</a>
       <a href="#how" class="btn-secondary">使い方を見る ▾</a>
     </div>
     <p class="hero-note">クレジットカード不要 ・ 初期設定サポート無料 ・ いつでも解約可</p>
+    <p style="margin-top:10px; font-size:13px; color:var(--muted)">すでにアカウントをお持ちの方は<a href="https://app.repotan.jp/login" style="color:var(--teal); font-weight:700;">こちらからログイン</a></p>
   </div>
 
   <div class="hero-visual">
@@ -403,23 +419,23 @@ footer {
 <!-- PROOF BAR -->
 <div class="proof-bar">
   <div class="proof-item">
-    <div class="proof-num">1,200<span>+</span></div>
-    <div class="proof-label">導入施設数</div>
+    <div class="proof-num">14<span>日</span></div>
+    <div class="proof-label">無料トライアル期間</div>
   </div>
   <div class="proof-divider"></div>
   <div class="proof-item">
-    <div class="proof-num">18<span>h</span></div>
-    <div class="proof-label">月平均削減時間</div>
+    <div class="proof-num">2<span>h</span></div>
+    <div class="proof-label">AI生成の所要時間</div>
   </div>
   <div class="proof-divider"></div>
   <div class="proof-item">
-    <div class="proof-num">4.8<span>/5</span></div>
-    <div class="proof-label">ユーザー満足度</div>
+    <div class="proof-num">¥9,800<span>〜</span></div>
+    <div class="proof-label">月額（税別）</div>
   </div>
   <div class="proof-divider"></div>
   <div class="proof-item">
-    <div class="proof-num">99.9<span>%</span></div>
-    <div class="proof-label">稼働率（SLA保証）</div>
+    <div class="proof-num">0<span>円</span></div>
+    <div class="proof-label">初期費用・解約手数料</div>
   </div>
 </div>
 
@@ -527,8 +543,8 @@ footer {
 <!-- TESTIMONIALS -->
 <section class="testi" id="testimonials">
   <div style="text-align:center; max-width:600px; margin:0 auto;">
-    <div class="section-eyebrow">お客様の声</div>
-    <h2 class="section-title">全国の施設長・担当者から<br><em>喜びの声</em>が届いています</h2>
+    <div class="section-eyebrow">導入効果のイメージ</div>
+    <h2 class="section-title">こんな変化が<br><em>期待できます</em></h2>
   </div>
   <div class="testi-grid">
     <div class="testi-card">
@@ -660,7 +676,7 @@ footer {
   <p class="section-desc">14日間、すべての機能を無料でお試しいただけます。<br>クレジットカード不要・初期設定サポート付き。</p>
   <div class="cta-group">
     <a href="https://tally.so/r/Pd0y7P" class="btn-white">14日間 無料で試す</a>
-    <a href="#" class="btn-ghost">デモを見る ›</a>
+    <a href="https://app.repotan.jp" class="btn-ghost">アプリを開く ›</a>
   </div>
   <p class="final-note">クレジットカード不要 ・ いつでも解約可 ・ 初期設定は弊社が無料サポート</p>
 </section>
@@ -674,7 +690,7 @@ footer {
     <a href="#">特定商取引法</a>
     <a href="#">お問い合わせ</a>
   </div>
-  <div class="footer-copy">© 2025 レポたん All rights reserved.</div>
+  <div class="footer-copy">© 2026 レポたん All rights reserved.</div>
 </footer>
 
 <script>
