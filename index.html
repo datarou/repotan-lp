@@ -697,12 +697,22 @@ footer {
 </footer>
 
 <script>
+// FAQの開閉制御
 function toggleFaq(btn) {
   const item = btn.closest('.faq-item');
   const isOpen = item.classList.contains('open');
   document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
   if (!isOpen) item.classList.add('open');
 }
+
+// 特定のドメインのリンクをすべて別タブで開く設定
+document.addEventListener('DOMContentLoaded', () => {
+  const links = document.querySelectorAll('a[href*="app.repotan.jp"]');
+  links.forEach(link => {
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener');
+  });
+});
 </script>
 </body>
 </html>
